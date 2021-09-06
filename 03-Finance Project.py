@@ -1,5 +1,4 @@
-
-# By employing visualization (Seaborn: distplots and pairplots, Matplotlib) and pandas skills, this data project is designed to explore substantial changes in the stock prices of major banks during subprime mortgage crisis.
+# By employing visualization (Seaborn: distplots and pairplots, Matplotlib, cufflinks: interactive clustermap, candle plots, simple moving averages, bollinger plot) and pandas skills, this data project is designed to explore substantial changes in the stock prices of major banks during subprime mortgage crisis.
 # Initially, I wrote all the lines of code in Jupyter. Then, I converted all the lines of code into a regular Python file.
 
 
@@ -90,7 +89,7 @@ returns2
 returns2.head(5)
 
 
-#Step 3) Data analysis and visualization part
+#Step 3) Visualization and data analysis part
 
 
 #Let us create a pairplot using seaborn of the returns dataframe. What stock stands out to you? Can you figure out why?
@@ -105,7 +104,7 @@ returns2.idxmin() #minimum return value
 returns2.idxmax() #maximum return value
 
 
-# Let us take a look at the standard deviation of the returns, which stock would you classify as the riskiest over the entire time period? Which would you classify as the riskiest for the year 2015?
+# Let us take a look at the standard deviation of the returns, which stock would you classify as the riskiest over the entire time period? Which would you classify as the riskiest for the year 2015 (as an example)?
 returns2.std() #By looking at the standard deviation, CitiGroup seems to be the riskiest.
 returns2.loc['2015-01-01':'2015-12-31'].std() #In 2015, the riskiest was MS(Morgan Stanley). We can change the time period to see the full information about a particular year. 
 
@@ -149,99 +148,36 @@ plt.legend(tickers)
 bank_stocks.xs(key='Close', axis=1, level='Stock Info').iplot()
 
 
-# ## Moving Averages
-# 
-# Let's analyze the moving averages for these stocks in the year 2008. 
-# 
-# ** Plot the rolling 30 day average against the Close Price for Bank Of America's stock for the year 2008**
 
-# In[207]:
-
-
-#Calculating and analyzing moving averages for year 2008.
+#Moving Averages Analysis 
+#Let us analyze the moving averages for these stocks in the year 2008. 
+#Plotting the rolling 30 day average against the Close Price for Bank Of America's stock for the year 2008.
+#Calculating and analyzing moving averages for year 2008. You can simply replace BAC with any other ticker to see the rolling 30 days average of each bank.
 plt.figure(figsize = (12,5))
 bank_stocks['BAC']['Close'].loc['2008-01-01':'2008-12-31'].rolling(window=30).mean().plot(label = '30 Day Avg')
 bank_stocks['BAC']['Close'].loc['2008-01-01':'2008-12-31'].plot(label='BAC CLOSE', color = 'green')
 plt.legend()
 
 
-# In[141]:
-
-
-
-
-
-# ** Create a heatmap of the correlation between the stocks Close Price.**
-
-# In[184]:
-
-
 #By using a heatmap of the correlation between the stocks close price, we can see if the banks affect each other. 
 sns.heatmap(data=df.xs(key='Close', axis=1,level = 'Stock Info').corr(),cmap='coolwarm',annot= True) #using Google's data
 
-
-# In[41]:
-
-
-
-
-
-# ** Optional: Use seaborn's clustermap to cluster the correlations together:**
-
-# In[185]:
-
-
+#Using seaborn's clustermap to cluster the correlations together:
 sns.clustermap(data=df.xs(key='Close', axis=1,level = 'Stock Info').corr(),cmap='coolwarm',annot= True)
-
-
-# In[26]:
-
-
-
-
-
-# In[217]:
-
 
 #We can also use Cufflinks to create an interactive heatmap.
 close_corr = bank_stocks.xs(key='Close',axis=1,level='Stock Info').corr()
-close_corr.iplot(kind='heatmap',colorscale='rdylbu')
+close_corr.iplot(kind='heatmap',colorscale='rdylbu') 
 
 
-# # Part 2 (Optional)
-# 
-# In this second part of the project we will rely on the cufflinks library to create some Technical Analysis plots. This part of the project is experimental due to its heavy reliance on the cuffinks project, so feel free to skip it if any functionality is broken in the future.
-
-# ** Use .iplot(kind='candle) to create a candle plot of Bank of America's stock from Jan 1st 2015 to Jan 1st 2016.**
-
-# In[204]:
-
-
+#Using cufflinks library to create technical analysis plots. 
+#1) Creating a candle plot of Bank of America's stock from Jan 1st 2015 to Jan 1st 2016. (Pay attention to the syntax)
 BAC[['Open','Low','High','Close']].loc['01-01-2015':'01-01-2016'].iplot(kind='candle')
 
 
-# In[125]:
-
-
-
-
-
-# ** Use .ta_plot(study='sma') to create a Simple Moving Averages plot of Morgan Stanley for the year 2015.**
-
-# In[212]:
-
-
+#2) Creating a Simple Moving Averages plot of Morgan Stanley for the year 2015 by using ta_plot.
 MS['Close'].loc['01-01-2015':'12-31-2015'].ta_plot(study='sma',periods=30)
 
 
-# **Use .ta_plot(study='boll') to create a Bollinger Band Plot for Bank of America for the year 2015.**
-
-# In[214]:
-
-
+#3) Creating a Bollinger Band Plot for Bank of America for the year 2015 by using ta_plot.
 BAC['Close'].loc['2015-01-01':'2015-12-31'].ta_plot(study='boll')
-
-
-# # Great Job!
-# 
-# Definitely a lot of more specific finance topics here, so don't worry if you didn't understand them all! The only thing you should be concerned with understanding are the basic pandas and visualization oeprations.
