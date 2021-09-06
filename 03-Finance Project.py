@@ -1,8 +1,9 @@
 
-# By employing visualization and pandas skills, this data project is designed to explore substantial changes in the stock prices of major banks during subprime mortgage crisis.
-# Initially, I wrote all the codes in Jupyter. Then, I converted all the lines of code into a regular Python file.
+# By employing visualization (Seaborn) and pandas skills, this data project is designed to explore substantial changes in the stock prices of major banks during subprime mortgage crisis.
+# Initially, I wrote all the lines of code in Jupyter. Then, I converted all the lines of code into a regular Python file.
 
-# All the libraries.
+
+#Step 1) Importing All the libraries.
 from pandas_datareader import data, wb
 import pandas as pd
 import numpy as np
@@ -12,7 +13,7 @@ import matplotlib.pyplot as plt
 get_ipython().run_line_magic('matplotlib', 'inline')
 
 
-#Obtaining the Data
+#Step 2) Obtaining the Data and creating a dataframe
 
 # We need to get data using pandas datareader. We will get stock information for the following banks:
 # *  Bank of America
@@ -33,7 +34,7 @@ start = datetime.date(2006,1,1)
 end = datetime.date(2021,1,1)
 
 
-#Grabbing all the bank data from Yahoo Finance. df below is the same data from Google which is more accurate than the one 
+#We grab all the bank data from Yahoo Finance. df below is the same data from Google which is more accurate than the one 
 #from Yahoo. Unfortunately, DataReader does not support Google Finance anymore. The file called "all_banks" in the repository
 #contains the data from our start date to end date. It would be read by read_pickle.
 BAC = data.DataReader("BAC",'yahoo', start, end)
@@ -45,135 +46,58 @@ WFC = data.DataReader("WFC","yahoo",start,end)
 df = pd.read_pickle('all_banks')
 
 
-
-
-
-# ** Create a list of the ticker symbols (as strings) in alphabetical order. Call this list: tickers**
-
-# In[94]:
-
-
+#Creating a list of the ticker symbols (as strings) in alphabetical order.
 tickers = ["BAC","C","GS","JPM","MS","WFC"]
 
 
-# ** Use pd.concat to concatenate the bank dataframes together to a single data frame called bank_stocks. Set the keys argument equal to the tickers list. Also pay attention to what axis you concatenate on.**
-
-# In[95]:
-
-
-#concatenating all the bank dataframes together
+#Concatenating (combining) all the bank dataframes together
 bank_stocks = pd.concat([BAC,C,GS,JPM,MS,WFC], keys=tickers,axis=1)
-bank_stocks
+
+#Set the column name levels 
+bank_stocks.columns.names = ['Bank Ticker','Stock Info'] 
+
+#Just in case that you want to check our dataframe: 
+#bank_stocks.head()
+
+#As a test, we can explore the data a bit. For instance, the max Close price for each bank's stock throughout the time period can be found by the following:
+round(bank_stocks.xs(key=('Close'), axis=1,level = 'Stock Info').max(),2)  
+#By changing Close with any other column name, we can explore any other data.
 
 
-# ** Set the column name levels (this is filled out for you):**
-
-# In[96]:
-
-
-bank_stocks.columns.names = ['Bank Ticker','Stock Info'] #add levels for your columns.
-bank_stocks.head()
+#Let us create a new empty DataFrame called returns. This dataframe will contain the returns for each bank's stock. Returns are typically defined by the following. 
+#return = (ending stock price (p_t) - initial stock price (p_t-1))/initial stock price (p_t-1)
+returns = pd.DataFrame()  #for the data imported from Yahoo Finance
+returns2 = pd.DataFrame() #for the data imported from Google Finance
 
 
-# ** Check the head of the bank_stocks dataframe.**
-
-# # EDA
-# 
-# Let's explore the data a bit! Before continuing, I encourage you to check out the documentation on [Multi-Level Indexing](http://pandas.pydata.org/pandas-docs/stable/advanced.html) and [Using .xs](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.xs.html).
-# Reference the solutions if you can not figure out how to use .xs(), since that will be a major part of this project.
-# 
-# ** What is the max Close price for each bank's stock throughout the time period?**
-
-# In[97]:
-
-
-#bank_stocks[tickers].max().loc[(tickers, 'Close')]
-round(bank_stocks.xs(key=('Close'), axis=1,level = 'Stock Info').max(),2) #Round these numbers 
-
-
-# In[58]:
-
-
-
-
-
-# ** Create a new empty DataFrame called returns. This dataframe will contain the returns for each bank's stock. returns are typically defined by:**
-# 
-# $$r_t = \frac{p_t - p_{t-1}}{p_{t-1}} = \frac{p_t}{p_{t-1}} - 1$$
-
-# In[98]:
-
-
-returns = pd.DataFrame() #return = (ending stock price (p_t) - initial stock price (p_t-1))/initial stock price (p_t-1)
-returns2 = pd.DataFrame()
-
-
-# ** We can use pandas pct_change() method on the Close column to create a column representing this return value. Create a for loop that goes and for each Bank Stock Ticker creates this returns column and set's it as a column in the returns DataFrame.**
-
-# In[99]:
-
-
+# pandas pct_change() method on the Close column creates a column representing this return value. Then, we can create a for loop that goes and for each Bank Stock Ticker creates this returns column and sets it as a column in the returns DataFrame.
 for i in tickers: #percentage change for the data extracted from Yahoo
-    returns[i + " Return"] = bank_stocks[i].pct_change()['Close']#.xs(key=('Close'), axis=1,level = 'Stock Info')
+    returns[i + " Return"] = bank_stocks[i].pct_change()['Close']
+#check if returns is updated well.
 returns
 returns.head(5)
 
 for i in tickers: #percentage change for the data extracted from Google
-    returns2[i + " Return"] = df[i].pct_change()['Close']#.xs(key=('Close'), axis=1,level = 'Stock Info')
+    returns2[i + " Return"] = df[i].pct_change()['Close']
+#check if returns2 is updated well
 returns2
 returns2.head(5)
 
 
-# In[65]:
+#Step 3) Data Analysis Part
 
 
-
-
-
-# ** Create a pairplot using seaborn of the returns dataframe. What stock stands out to you? Can you figure out why?**
-
-# In[100]:
-
-
+#Let us create a pairplot using seaborn of the returns dataframe. What stock stands out to you? Can you figure out why?
 sns.pairplot(returns2) #You can replace return2 with the return column from the data extracted from Yahoo
 #However, return column from Yahoo is not accurate for Citigroup
 plt.tight_layout()
 #Based on the graph, CitiGroup was affected most negatively among the other banks.
 
 
-# In[68]:
+# ** Using this returns DataFrame, let us figure out on what dates each bank stock had the best and worst single day returns. 
+returns2.idxmin() #minimum return value
 
-
-
-
-
-# * See solution for details about Citigroup behavior....
-
-# ** Using this returns DataFrame, figure out on what dates each bank stock had the best and worst single day returns. You should notice that 4 of the banks share the same day for the worst drop, did anything significant happen that day?**
-
-# In[101]:
-
-
-returns2.idxmin()
-
-
-# In[112]:
-
-
-
-
-
-# ** You should have noticed that Citigroup's largest drop and biggest gain were very close to one another, did anythign significant happen in that time frame? **
-
-# * See Solution for details
-
-# In[102]:
-
-
-returns2.idxmax()
-
-
-# In[76]:
+returns2.idxmax() #maximum return value
 
 
 
