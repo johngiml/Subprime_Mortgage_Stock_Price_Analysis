@@ -1,9 +1,9 @@
 
-# By employing visualization (Seaborn) and pandas skills, this data project is designed to explore substantial changes in the stock prices of major banks during subprime mortgage crisis.
+# By employing visualization (Seaborn: distplots and pairplots, Matplotlib) and pandas skills, this data project is designed to explore substantial changes in the stock prices of major banks during subprime mortgage crisis.
 # Initially, I wrote all the lines of code in Jupyter. Then, I converted all the lines of code into a regular Python file.
 
 
-#Step 1) Importing All the libraries.
+#Step 1) Importing all the libraries.
 from pandas_datareader import data, wb
 import pandas as pd
 import numpy as np
@@ -13,7 +13,8 @@ import matplotlib.pyplot as plt
 get_ipython().run_line_magic('matplotlib', 'inline')
 
 
-#Step 2) Obtaining the Data and creating a dataframe
+#Step 2) Obtaining the data and creating a dataframe
+
 
 # We need to get data using pandas datareader. We will get stock information for the following banks:
 # *  Bank of America
@@ -22,6 +23,7 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 # * JPMorgan Chase
 # * Morgan Stanley
 # * Wells Fargo
+
 
 # **We acquire the stock data from Jan 1st 2006 to Jan 1st 2016 for each of these banks. Set each bank to be a separate dataframe, with the variable name for that bank being its ticker symbol. This will involve a few steps:**
 # 1. Set datetime for start and end datetime objects.
@@ -53,11 +55,14 @@ tickers = ["BAC","C","GS","JPM","MS","WFC"]
 #Concatenating (combining) all the bank dataframes together
 bank_stocks = pd.concat([BAC,C,GS,JPM,MS,WFC], keys=tickers,axis=1)
 
+
 #Set the column name levels 
 bank_stocks.columns.names = ['Bank Ticker','Stock Info'] 
 
+
 #Just in case that you want to check our dataframe: 
 #bank_stocks.head()
+
 
 #As a test, we can explore the data a bit. For instance, the max Close price for each bank's stock throughout the time period can be found by the following:
 round(bank_stocks.xs(key=('Close'), axis=1,level = 'Stock Info').max(),2)  
@@ -77,6 +82,7 @@ for i in tickers: #percentage change for the data extracted from Yahoo
 returns
 returns.head(5)
 
+
 for i in tickers: #percentage change for the data extracted from Google
     returns2[i + " Return"] = df[i].pct_change()['Close']
 #check if returns2 is updated well
@@ -84,7 +90,7 @@ returns2
 returns2.head(5)
 
 
-#Step 3) Data Analysis Part
+#Step 3) Data analysis and visualization part
 
 
 #Let us create a pairplot using seaborn of the returns dataframe. What stock stands out to you? Can you figure out why?
@@ -96,105 +102,41 @@ plt.tight_layout()
 
 # ** Using this returns DataFrame, let us figure out on what dates each bank stock had the best and worst single day returns. 
 returns2.idxmin() #minimum return value
-
 returns2.idxmax() #maximum return value
 
 
-
-
-
-# ** Take a look at the standard deviation of the returns, which stock would you classify as the riskiest over the entire time period? Which would you classify as the riskiest for the year 2015?**
-
-# In[103]:
-
-
+# Let us take a look at the standard deviation of the returns, which stock would you classify as the riskiest over the entire time period? Which would you classify as the riskiest for the year 2015?
 returns2.std() #By looking at the standard deviation, CitiGroup seems to be the riskiest.
+returns2.loc['2015-01-01':'2015-12-31'].std() #In 2015, the riskiest was MS(Morgan Stanley). We can change the time period to see the full information about a particular year. 
 
 
-# In[81]:
-
-
-
-
-
-# In[104]:
-
-
-returns2.loc['2015-01-01':'2015-12-31'].std() #In 2015, the riskiest was MS.
-
-
-# In[88]:
-
-
-
-
-
-# ** Create a distplot using seaborn of the 2015 returns for Morgan Stanley **
-
-# In[105]:
-
-
+#Let us explore 2015 Morgan Stanley stock price further by creating a distplot using seaborn.
 sns.distplot(a=returns2['MS Return'].loc['2015-01-01':'2015-12-31'],bins=100,color = 'green')
-plt.grid() #to add gridlines to the plot.
+plt.grid() #Adding gridlines to the plot.
 
-
-# In[94]:
-
-
-
-
-
-# ** Create a distplot using seaborn of the 2008 returns for CitiGroup **
-
-# In[106]:
-
-
+#Let us explore 2008 CitiGroup stock price further by creating a distplot using seaborn.
 sns.distplot(a=returns2['C Return'].loc['2008-01-01':'2008-12-31'], color='red',bins=100)
 plt.grid()
 
 
-# In[98]:
-
-
-
-
-
-# ____
-# # More Visualization
-# 
-# A lot of this project will focus on visualizations. Feel free to use any of your preferred visualization libraries to try to recreate the described plots below, seaborn, matplotlib, plotly and cufflinks, or just pandas.
-# 
-# ### Imports
-
-# In[107]:
-
-
+#More Visualization
+#Importing visualizating libraries including Matplotlib and Seaborn
 import matplotlib.pyplot as plt
 import seaborn as sns
 sns.set_style('whitegrid')
-get_ipython().run_line_magic('matplotlib', 'inline')
+get_ipython().run_line_magic('matplotlib', 'inline') 
 
-# Optional Plotly Method Imports
+#Optional Plotly method imports
 import plotly
 import cufflinks as cf
 cf.go_offline()
 
 
-# ** Create a line plot showing Close price for each bank for the entire index of time. (Hint: Try using a for loop, or use [.xs](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.xs.html) to get a cross section of the data.)**
-
-# In[108]:
-
-
-#Multiple ways to create this plot:
-
+#Let us create a line plot showing Close price for each bank for the entire index of time. Three ways below work the same. 
 #1)By using multi-index dataframe and df plot method(you can change the size of this plot)
 for ticker in tickers:
     bank_stocks[ticker]['Close'].plot(figsize=(12,5))
 plt.legend(tickers)
-
-
-# In[109]:
-
 
 #2) By using Seaborn lineplot with xs method.
 sns.lineplot(data=bank_stocks.xs(key=('Close'), axis=1,level = 'Stock Info'))
@@ -203,29 +145,8 @@ plt.ylabel('')
 plt.legend(tickers)
 
 
-# In[113]:
-
-
 #3) By using iplot with xs method. (You can trace individual points on the plot.)
 bank_stocks.xs(key='Close', axis=1, level='Stock Info').iplot()
-
-
-# In[17]:
-
-
-
-
-
-# In[18]:
-
-
-
-
-
-# In[19]:
-
-
-
 
 
 # ## Moving Averages
