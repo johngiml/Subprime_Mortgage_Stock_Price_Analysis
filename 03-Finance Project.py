@@ -1,40 +1,8 @@
-#!/usr/bin/env python
-# coding: utf-8
 
-# ___
-# 
-# <a href='http://www.pieriandata.com'> <img src='../Pierian_Data_Logo.png' /></a>
-# ___
+# By employing visualization and pandas skills, this data project is designed to explore substantial changes in the stock prices of major banks during subprime mortgage crisis.
+# Initially, I wrote all the codes in Jupyter. Then, I converted all the lines of code into a regular Python file.
 
-# # Finance Data Project 
-# 
-# In this data project we will focus on exploratory data analysis of stock prices. Keep in mind, this project is just meant to practice your visualization and pandas skills, it is not meant to be a robust financial analysis or be taken as financial advice.
-# ____
-# ** NOTE: This project is extremely challenging because it will introduce a lot of new concepts and have you looking things up on your own (we'll point you in the right direction) to try to solve the tasks issued. Feel free to just go through the solutions lecture notebook and video as a "walkthrough" project if you don't want to have to look things up yourself. You'll still learn a lot that way! **
-# ____
-# We'll focus on bank stocks and see how they progressed throughout the [financial crisis](https://en.wikipedia.org/wiki/Financial_crisis_of_2007%E2%80%9308) all the way to early 2016.
-
-# ## Get the Data
-# 
-# In this section we will learn how to use pandas to directly read data from Google finance using pandas!
-# 
-# First we need to start with the proper imports, which we've already laid out for you here.
-# 
-# *Note: [You'll need to install pandas-datareader for this to work!](https://github.com/pydata/pandas-datareader) Pandas datareader allows you to [read stock information directly from the internet](http://pandas.pydata.org/pandas-docs/stable/remote_data.html) Use these links for install guidance (**pip install pandas-datareader**), or just follow along with the video lecture.*
-# 
-# ### The Imports
-# 
-# Already filled out for you.
-
-# In[2]:
-
-
-
-
-
-# In[2]:
-
-
+# All the libraries.
 from pandas_datareader import data, wb
 import pandas as pd
 import numpy as np
@@ -43,42 +11,31 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 get_ipython().run_line_magic('matplotlib', 'inline')
 
-# Data
 
-We need to get data using pandas datareader. We will get stock information for the following banks:
-*  Bank of America
-* CitiGroup
-* Goldman Sachs
-* JPMorgan Chase
-* Morgan Stanley
-* Wells Fargo
+#Obtaining the Data
 
-** Figure out how to get the stock data from Jan 1st 2006 to Jan 1st 2016 for each of these banks. Set each bank to be a separate dataframe, with the variable name for that bank being its ticker symbol. This will involve a few steps:**
-1. Use datetime to set start and end datetime objects.
-2. Figure out the ticker symbol for each bank.
-2. Figure out how to use datareader to grab info on the stock.
+# We need to get data using pandas datareader. We will get stock information for the following banks:
+# *  Bank of America
+# * CitiGroup
+# * Goldman Sachs
+# * JPMorgan Chase
+# * Morgan Stanley
+# * Wells Fargo
 
-** Use [this documentation page](https://pandas-datareader.readthedocs.io/en/latest/remote_data.html) for hints and instructions (it should just be a matter of replacing certain values. Use google finance as a source, for example:**
-    
-    # Bank of America
-    BAC = data.DataReader("BAC", 'google', start, end)
-
-### WARNING: MAKE SURE TO CHECK THE LINK ABOVE FOR THE LATEST WORKING API. "google" MAY NOT ALWAYS WORK. 
-------------
-### We also provide pickle file in the article lecture right before the video lectures.
-# In[92]:
-
+# **We acquire the stock data from Jan 1st 2006 to Jan 1st 2016 for each of these banks. Set each bank to be a separate dataframe, with the variable name for that bank being its ticker symbol. This will involve a few steps:**
+# 1. Set datetime for start and end datetime objects.
+# 2. Set the ticker symbol for each bank.
+# 3. Use datareader to grab info on the stock.
+   
 
 #Set start and end times first. One decade of time.
 start = datetime.date(2006,1,1)
 end = datetime.date(2021,1,1)
 
 
-# In[93]:
-
-
 #Grabbing all the bank data from Yahoo Finance. df below is the same data from Google which is more accurate than the one 
-#from Yahoo.
+#from Yahoo. Unfortunately, DataReader does not support Google Finance anymore. The file called "all_banks" in the repository
+#contains the data from our start date to end date. It would be read by read_pickle.
 BAC = data.DataReader("BAC",'yahoo', start, end)
 C = data.DataReader("C","yahoo", start, end)
 GS = data.DataReader("GS","yahoo",start,end)
@@ -86,9 +43,6 @@ JPM = data.DataReader("JPM","yahoo",start,end)
 MS = data.DataReader("MS","yahoo",start,end)
 WFC = data.DataReader("WFC","yahoo",start,end)
 df = pd.read_pickle('all_banks')
-
-
-# In[181]:
 
 
 
